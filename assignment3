@@ -1,0 +1,322 @@
+using System;
+
+/*Author: Minji Kim
+ * Date: April 7 2021
+ * Description:
+ * Program to ask the user items they want to buy and print the payment including the discounts and tax
+ * Quantity discount and student/senior discount included
+ * If the user wins a certain lottery number, they might get greater discounts
+ * Item list to be stored in array
+ * Cost list to be stored in array
+ * Item shape options stored in array
+ * Item color options stored in array
+ * Item information stored in array of structures
+ * Users data to be stored in array of structures
+ */
+
+namespace Assignment3
+{
+    class Program
+    {
+        //Creates random numbers automatically
+        private static Random randValue = new Random();
+
+        //Define fixed variables including the cost and discount, tax percentages
+        const double STUDENT_SENIOR_DISCOUNT = 0.93F, QUANTITY_DISCOUNT = 0.70F;
+        const double TAX_PERCENTAGE = 0.13F;
+        const int MIN_NUMBER = 0, MAX_NUMBER = 10;
+        const int QUANTITY_DISCOUNT_NUMBER = 5;
+        const int STUDENT_SENIOR_DISCOUNT_PERCENTAGE = 7, QUANTITY_DISCOUNT_PERCENTAGE = 30, NO_DISCOUNT = 0;
+
+        struct Information
+        {
+            public string itemName;
+            public double itemCost;
+        }
+        struct CollectData
+        {
+            public string item, shape, color;
+            public int quantity, discount;
+            public double total;
+        }
+        static void Welcome(Information[] information, string[] shape, string[] color)
+        {
+            int i;
+
+            //Welcome Message and Price Information
+            Console.WriteLine("Welcome to Janice's Jewelry! We have");
+            for (i = 0; i < information.Length; i++)
+            {
+                Console.WriteLine("{0,-8}: {1,1} {2:##.00}", information[i].itemName, "$", information[i].itemCost);
+            }
+            Console.WriteLine("\nThere are {0} shapes in each item: {1}, {2}",
+                shape.Length, shape[0], shape[1]);
+            Console.WriteLine("There are {0} colors in each item: {1}, {2}, {3}",
+                color.Length, color[0], color[1], color[2]);
+            Console.WriteLine("\nIf you buy {0} or more you get {1}% discount. You can buy up to {2} each.\n",
+                QUANTITY_DISCOUNT_NUMBER, QUANTITY_DISCOUNT_PERCENTAGE, MAX_NUMBER);
+        }
+        static string Input(CollectData[] collectData, Information[] information, string[] shape, string[] color)
+        {
+            int i;
+            bool validChoiceChk;
+            string identity;
+
+            //Start collecting user data, repeat for all 6 items
+            for (i = 0; i < collectData.Length; i++)
+            {
+                //Save item name
+                collectData[i].item = information[i].itemName;
+
+                //Ask number of the item the user wants
+                Console.WriteLine("How many {0} do you want: ", information[i].itemName);
+
+                //Validate number of the item entered based on MIN_NUMBER and MAX_NUMBER
+                do
+                {
+                    //Use try-catch not to make the program break
+                    try
+                    {
+                        collectData[i].quantity = int.Parse(Console.ReadLine());
+                    }
+                    catch
+                    {
+                        collectData[i].quantity = -1;
+                    }
+
+                    if (collectData[i].quantity < MIN_NUMBER || collectData[i].quantity > MAX_NUMBER)
+                    {
+                        Console.WriteLine("Invalid response, you may only buy up to " + MAX_NUMBER +
+                            " items due to production issue.\nPlease enter again: ");
+                    }
+                } while (collectData[i].quantity < MIN_NUMBER || collectData[i].quantity > MAX_NUMBER);
+
+                //If the user wants the item, ask for shape and color
+                if (collectData[i].quantity > MIN_NUMBER)
+                {
+                    //Asking for proper shape choice loop
+                    do
+                    {
+                        Console.WriteLine("Which shape do you want [{0}/{1}]: ", shape[0], shape[1]);
+                        collectData[i].shape = Console.ReadLine();
+
+                        //Set boolean to true if a valid choice was entered
+                        validChoiceChk = (collectData[i].shape.Trim().ToUpper() == "HEART" ||
+                            collectData[i].shape.Trim().ToUpper() == "CROWN");
+                        if (!validChoiceChk)
+                        {
+                            Console.WriteLine("Invalid choice, please choose between {0} or {1}.", shape[0], shape[1]);
+                        }
+                    } while (!validChoiceChk);
+
+                    //Asking for proper color choice loop
+                    do
+                    {
+                        Console.WriteLine("Which color do you want [{0}/{1}/{2}]: ", color[0], color[1], color[2]);
+                        collectData[i].color = Console.ReadLine();
+
+                        //Set boolean to true if a valid choice was entered
+                        validChoiceChk = (collectData[i].color.Trim().ToUpper() == "GOLD" ||
+                            collectData[i].color.Trim().ToUpper() == "PINK GOLD" ||
+                            collectData[i].color.Trim().ToUpper() == "SILVER");
+
+                        if (!validChoiceChk)
+                        {
+                            Console.WriteLine("Invalid choice, please choose between {0}, {1}, or {2}.", 
+                                color[0], color[1], color[2]);
+                        }
+                    } while (!validChoiceChk);
+                }
+            }
+
+            //Ask the identity of the user
+            do
+            {
+                Console.WriteLine("\nAre you a student, senior, or neither?");
+                identity = Console.ReadLine();
+
+                //Set boolean to true if a valid choice was entered
+                validChoiceChk = (identity.Trim().ToUpper() == "STUDENT" ||
+                    identity.Trim().ToUpper() == "SENIOR" || identity.Trim().ToUpper() == "NEITHER");
+                if (!validChoiceChk)
+                {
+                    Console.WriteLine("Invalid choice, please choose between student, senior, or neither.");
+                }
+
+                //Give student/senior discount information
+                if (identity == "student" || identity == "senior")
+                {
+                    Console.WriteLine("\nYou get {0}% discount! " +
+                        "(If you got {1}% quantity discount, this doesn't apply to that item.)",
+                        STUDENT_SENIOR_DISCOUNT_PERCENTAGE, QUANTITY_DISCOUNT_PERCENTAGE);
+                }
+            } while (!validChoiceChk);
+
+            return identity;
+        }
+        static int LotterySale()
+        {
+            int lotteryNumber;
+            int lotteryDiscount;
+
+            //Create a random number from 1 ~ 100
+            lotteryNumber = randValue.Next(1, 101);
+
+            if (lotteryNumber <= 40) //40% chance of a 5% discount
+            {
+                lotteryDiscount = 5;
+            }else if (lotteryNumber > 40 && lotteryNumber <= 70) //30% chance of a 10% discount
+            {
+                lotteryDiscount = 10;
+            }else if (lotteryNumber > 70 && lotteryNumber <= 85) //15% chance of a 20% discount
+            {
+                lotteryDiscount = 20;
+            }else if (lotteryNumber > 85 && lotteryNumber <= 95) //10% chance of a 50% discount
+            {
+                lotteryDiscount = 50;
+            }
+            else //5% chance of a 75% discount
+            {
+                lotteryDiscount = 75;
+            }
+
+            //Lottery number and discount message for the user
+            Console.WriteLine("\nYour lottery number is {0} and your lottery discount is {1}%!", 
+                lotteryNumber, lotteryDiscount);
+            
+            return lotteryDiscount;
+        }
+        static void ApplyDiscount(CollectData[] collectData, Information[] information, 
+            string identity, int lotteryDiscount)
+        {
+            int i;
+
+            //Collect user identity data to apply discount
+            for (i = 0; i < information.Length; i++)
+            {
+                //Apply quantity discount of the items first if the user buys 5 or more
+                if (collectData[i].quantity >= QUANTITY_DISCOUNT_NUMBER)
+                {
+                    collectData[i].total = information[i].itemCost * collectData[i].quantity * QUANTITY_DISCOUNT;
+                    collectData[i].discount = QUANTITY_DISCOUNT_PERCENTAGE;
+                }
+                //Apply student/senior discount of the item if the user is one of them
+                else if (identity == "student" || identity == "senior")
+                {
+                    collectData[i].total = information[i].itemCost * collectData[i].quantity * STUDENT_SENIOR_DISCOUNT;
+                    collectData[i].discount = STUDENT_SENIOR_DISCOUNT_PERCENTAGE;
+                }
+                //No discount applied if neither of the conditions above are satisfied
+                else
+                {
+                    collectData[i].total = information[i].itemCost * collectData[i].quantity;
+                    collectData[i].discount = NO_DISCOUNT;
+                }
+
+                //Lottery discount applied if the percentage is bigger than quantity discount or student/senior discount
+                if (lotteryDiscount > collectData[i].discount)
+                {
+                    collectData[i].total = information[i].itemCost * collectData[i].quantity * (100 - lotteryDiscount) / 100.00F;
+                    collectData[i].discount = lotteryDiscount;                  
+                }
+            }
+
+            //Lottery discount information for the user
+            Console.WriteLine("\nLottery discount only applies if its percentage is bigger than quantity discount " +
+                "or student/senior discount.\nAnd it will apply to all of the items.");
+            Console.WriteLine("\n**Note that discount is not stacked with any other discounts**");
+        }
+        static void Output(CollectData[] collectData, Information[] information)
+        {
+            int i;
+            double totalSavings = 0, subTotal = 0, tax, finalTotal;
+
+            for (i = 0; i < information.Length; i++)
+            {
+                //Calculate the total savings
+                //Repeat to add the total savings for all of the items to the accumulated previous value
+                totalSavings += information[i].itemCost * collectData[i].quantity - collectData[i].total;
+
+                //Calculate the sub total
+                //Repeat to add the sub total for all of the items to the accumulated previous value
+                subTotal += collectData[i].total;
+            }
+
+            //Calculate the tax
+            tax = subTotal * TAX_PERCENTAGE;
+
+            //Calculate the final total
+            finalTotal = subTotal + tax;
+
+
+            //Create output for a summary menu
+            Console.WriteLine("\nItem Type\tDetails\t\t\tCost Per\tQnty\tDiscount\tTotal");
+            Console.WriteLine("---------\t-------\t\t\t--------\t----\t--------\t-----");
+            for (i = 0; i < information.Length; i++)
+            {
+                if (collectData[i].quantity > 0)
+                {
+                    Console.WriteLine("{0,-16}{1}, {2,-19}{3,1}{4:##.00}{5,12}{6,11}%{7,7}{8,6:###.00}\n",
+                        collectData[i].item, collectData[i].shape, collectData[i].color, "$", information[i].itemCost,
+                        collectData[i].quantity, collectData[i].discount, "$", collectData[i].total);
+                }
+            }
+            Console.WriteLine("{0,75}{1,4}{2,6:###.00}\n", "Total Savings:", "$", totalSavings);
+            Console.WriteLine("{0,75}{1,3}{2,7:###.00}", "Sub Total:", "$", subTotal);
+            Console.WriteLine("{0,75}{1,4}{2,6:###.00}", "Tax:", "$", tax);
+            Console.WriteLine("{0,75}{1,3}{2,7:###.00}", "Total:", "$", finalTotal);
+        }
+        static void Main(string[] args)
+        {                      
+            int i;
+
+            //Item information stored in array of structures with size of 6
+            Information[] information = new Information[6];
+
+            //Users data to be stored in array of structures with size of 6
+            CollectData[] collectData = new CollectData[6];
+
+            //Array of items
+            string[] itemName = new string[]
+            {
+                "Earrings", "Necklace", "Ring", "Bracelet", "Piercing", "Key Ring"
+            };
+
+            //Array of costs
+            double[] itemCost = new double[]
+            {
+                67.00F, 90.00F, 56.00F, 79.50F, 49.00F, 35.00F
+            };
+
+            //Array of shapes
+            string[] shape = new string[]
+            {
+                "Heart", "Crown"
+            };
+
+            //Array of colors
+            string[] color = new string[]
+            {
+                "Gold", "Pink Gold", "Silver"
+            };
+
+            //Array of item and cost stored in structure
+            for (i = 0; i < information.Length; i++)
+            {
+                information[i].itemName = itemName[i];
+                information[i].itemCost = itemCost[i];
+            }
+
+            //Call methods in order
+            Welcome(information, shape, color);
+
+            string identity = Input(collectData, information, shape, color);
+
+            int lotteryDiscount = LotterySale();
+
+            ApplyDiscount(collectData, information, identity, lotteryDiscount);
+
+            Output(collectData, information);
+        }
+    }
+}
