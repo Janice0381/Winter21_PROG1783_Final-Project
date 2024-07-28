@@ -1,0 +1,478 @@
+using System;
+
+/*Author: Minji Kim
+ * Date: April 21 2021
+ * Description:
+ * Guessing Number Game (using range and multiples)
+ * Program to ask the user to guess the randomly created 4 digit number
+ * Through Round1(5 attempts), Round2(3 attempts), and Final Round(2 attempts), user has 10 chances in total to guess the number
+ * Through the rounds, the program will show whether the guessing number is high or low compared to the user input
+ * There are 2 Hints available in Round2, and to get the hint, the user has to guess correct answers to the question
+ * There is 1 Hint available in Final Round, and the hint is given free
+ * Questions stored in array
+ * Answers1 stored in array
+ * Answers2 stored in array
+ * Guessed numbers history in Round 1 to be stored in array of structures
+ * Guessed numbers history in Round 2 to be stored in array of structures
+ * Guessed numbers history in Final Round to be stored in array of structures
+ * Give the user input information at the end of the game
+ */
+
+namespace Final_Project
+{
+    class Program
+    {
+        //Creates random number automatically
+        private static Random randValue = new Random();
+
+        //Define fixed variables
+        const int MIN_NUMBER = 1000, MAX_NUMBER = 9999;
+        const int ROUND_ONE_ATTEMPT = 5, ROUND_TWO_ATTEMPT = 3, ROUND_FINAL_ATTEMPT = 2;
+
+        //Structure of user inputs from each round
+        struct MyAnswers
+        {
+            public int guessNumberOne, guessNumberTwo, guessNumberThree;
+        }
+
+        //Welcome Method
+        //No inputs and outputs, display message
+        //Ask user to press enter to continue
+        static void Welcome()
+        {
+            //Welcome message and Game rule for the user
+            Console.WriteLine("Welcome to Guessing Number Game!");
+            Console.WriteLine("You have to guess a 4 digit number that will be randomly created.");
+            Console.WriteLine("There are 3 Rounds. If you guess the correct number in 10 attempts in total, you win the game!");
+            Console.WriteLine("\nPress Enter to continue");
+            Console.ReadLine();
+        }
+
+        //CreateNumber Method
+        //No inputs and outputs, Create a random number
+        //Return int - created random number
+        static int CreateNumber()
+        {
+            int randomNumber;
+
+            //Create a random number from 1000 ~ 9999
+            randomNumber = randValue.Next(1000, 10000);
+
+            return randomNumber;
+        }
+
+        //RoundOne Method
+        //Input - guessNumberOne
+        //No outputs, Display message
+        //Validate user input
+        static void RoundOne(MyAnswers[] myRound1Answers, int randomNumber)
+        {
+            int count;
+
+            //Start Round 1, shows how many chances are given in this round
+            Console.WriteLine("\n----------------------------------<Round 1>----------------------------------\n" +
+                "You have {0} chances to guess the number in Round 1.", ROUND_ONE_ATTEMPT);
+            Console.WriteLine("-----------------------------------------------------------------------------");
+
+            //Ask user to guess the number for ROUND_ONE_ATTEMPT times
+            for (count = 0; count < ROUND_ONE_ATTEMPT; count++)
+            {
+                Console.WriteLine("\nAttempt {0}", count + 1);
+
+                //Validate the number entered based on MIN_NUMBER and MAX_NUMBER
+                do
+                {
+                    //Use try-catch not to make the program break
+                    try
+                    {
+                        myRound1Answers[count].guessNumberOne = int.Parse(Console.ReadLine());
+                    }
+                    catch
+                    {
+                        myRound1Answers[count].guessNumberOne = 0;
+                    }
+
+                    if (myRound1Answers[count].guessNumberOne < MIN_NUMBER || myRound1Answers[count].guessNumberOne > MAX_NUMBER)
+                    {
+                        Console.WriteLine("Invalid response, please enter a number between {0} and {1}:", MIN_NUMBER, MAX_NUMBER);
+                    }
+                } while (myRound1Answers[count].guessNumberOne < MIN_NUMBER || myRound1Answers[count].guessNumberOne > MAX_NUMBER);
+
+                //Show whether the guessing number is high or low compared to the user input
+                if (myRound1Answers[count].guessNumberOne > randomNumber)
+                {
+                    Console.WriteLine("The number is LOWER than your answer. Try again!");
+                }
+                else if (myRound1Answers[count].guessNumberOne < randomNumber)
+                {
+                    Console.WriteLine("The number is HIGHER than your answer. Try again!");
+                }
+                else
+                {
+                    //If the user got the correct guessing number in this attempt, end the loop and move on to the next round
+                    Console.WriteLine("Congratulations! You've got the right number!");
+                    break;
+                }
+            }
+        }
+
+        //RoundTwo Method
+        //Inputs - guessNumberTwo, answer1, answer2
+        //No outputs, Display message and hints
+        //Validate user inputs
+        static void RoundTwo(MyAnswers[] myRound1Answers, MyAnswers[] myRound2Answers,
+            int randomNumber, string[] question, string[] answers1, string[] answers2)
+        {
+            int i;
+            int count;
+            string answer1, answer2;
+            bool validChoiceChk;
+
+            //Start Round 2, shows how many chances are given in this round
+            Console.WriteLine("\n----------------------------------<Round 2>----------------------------------\n" +
+                "You have {0} chances to guess the number in Round 2.", ROUND_TWO_ATTEMPT);
+
+            //Hint information in Round 2
+            Console.WriteLine("\nIf you want to use the hint, enter a number [1/2]. {0} types of Hints are available.\n" +
+                "You can use as many times of hints as possible.", question.Length);
+            Console.WriteLine("-----------------------------------------------------------------------------");
+
+            //Ask user to guess the number for ROUND_TWO_ATTEMPT times
+            for (count = 0; count < ROUND_TWO_ATTEMPT; count++)
+            {
+                //Check to see if user got the number correct in Round 1
+                for (i = 0; i < ROUND_ONE_ATTEMPT; i++)
+                {
+                    //If the user got the correct guessing number in Round 1, end the loop and move on to the next round
+                    if (myRound1Answers[i].guessNumberOne == randomNumber)
+                    {
+                        Console.WriteLine("\nBut...Wow! You've got the number in Round 1!\nThis is the end of the game.");
+                        Console.WriteLine("\nPlease enter the number again to end the game.");
+                        break;
+                    }
+                }
+
+                Console.WriteLine("\nAttempt {0}", count + 1);
+
+                //Validate the number entered based on MIN_NUMBER and MAX_NUMBER
+                do
+                {
+                    //Use try-catch not to make the program break
+                    try
+                    {
+                        myRound2Answers[count].guessNumberTwo = int.Parse(Console.ReadLine());
+
+                        //If the user wants Hint 1, ask the user to guess a color 
+                        //Break out of the loop to decide whether or not to give the hint
+                        if (myRound2Answers[count].guessNumberTwo == 1)
+                        {
+                            Console.WriteLine(question[0]);
+                            Console.WriteLine("If your color choice matches one of the {0} on the Secret Lucky Color List, " +
+                                "You'll get a hint.", answers1.Length);
+                            break;
+                        }
+
+                        //If the user wants Hint 2, ask the user to guess a fruit
+                        //Break out of the loop to decide whether or not to give the hint
+                        if (myRound2Answers[count].guessNumberTwo == 2)
+                        {
+                            Console.WriteLine(question[1]);
+                            Console.WriteLine("If your fruit choice matches one of the {0} on the Secret Lucky Fruit List, " +
+                                "You'll get a hint.", answers2.Length);
+                            break;
+                        }
+                    }
+                    catch
+                    {
+                        myRound2Answers[count].guessNumberTwo = 0;
+                    }
+
+                    if (myRound2Answers[count].guessNumberTwo < MIN_NUMBER || myRound2Answers[count].guessNumberTwo > MAX_NUMBER)
+                    {
+                        Console.WriteLine("Invalid response, please enter a number between {0} and {1}. or [1/2] for a Hint:", 
+                            MIN_NUMBER, MAX_NUMBER);
+                    }
+                } while (myRound2Answers[count].guessNumberTwo < MIN_NUMBER || myRound2Answers[count].guessNumberTwo > MAX_NUMBER ||
+                         myRound2Answers[count].guessNumberTwo == 1 || myRound2Answers[count].guessNumberTwo == 2);
+
+                //Show whether the guessing number is high or low compared to the user input
+                if (myRound2Answers[count].guessNumberTwo > randomNumber)
+                {
+                    Console.WriteLine("The number is LOWER than your answer. Try again!");
+                }
+                else if (myRound2Answers[count].guessNumberTwo == 1)
+                {
+                    //Store user answer of Hint 1 question
+                    answer1 = Console.ReadLine();
+
+                    validChoiceChk = (answer1.Trim().ToUpper() == answers1[0] || answer1.Trim().ToUpper() == answers1[1] ||
+                        answer1.Trim().ToUpper() == answers1[2]);
+
+                    //If the user's answer does not match with one of the three colors, there's no hint
+                    if (!validChoiceChk)
+                    {
+                        Console.WriteLine("\n*****************************************************************");
+                        Console.WriteLine("Sorry, that color is not on the Secret Lucky Color List...\n" +
+                            "You've missed the hint.");
+                        Console.WriteLine("You can still guess the Secret Lucky Color again to get the hint!");
+                        Console.WriteLine("*****************************************************************");
+                    }
+                    //If the user's answer matches with one of the three colors, provide hint
+                    else
+                    {
+                        Console.WriteLine("\nYou are lucky! That color is on the Secret Lucky Color List!");
+
+                        //Hint 1: Tell the user if the guessing number is a multiple of 2 or not
+                        if (randomNumber % 2 == 0)
+                        {
+                            Console.WriteLine("**HINT: The number you are guessing is an EVEN number**");
+                        }
+                        else
+                        {
+                            Console.WriteLine("**HINT: The number you are guessing is an ODD number**");
+                        }
+                    }
+
+                    //This is needed to give the hint and allow user to guess the number in the same attempt
+                    count--;
+                }
+                else if (myRound2Answers[count].guessNumberTwo == 2)
+                {
+                    //Store user answer of Hint 2 question
+                    answer2 = Console.ReadLine();
+
+                    validChoiceChk = (answer2.Trim().ToUpper() == answers2[0] || answer2.Trim().ToUpper() == answers2[1] ||
+                        answer2.Trim().ToUpper() == answers2[2]);
+
+                    //If the user's answer does not match with one of the three fruits, there's no hint
+                    if (!validChoiceChk)
+                    {
+                        Console.WriteLine("\n*****************************************************************");
+                        Console.WriteLine("Sorry, that fruit is not on the Secret Lucky Fruit List...\n" +
+                            "You've missed the hint.");
+                        Console.WriteLine("You can still guess the Secret Lucky Fruit again to get the hint!");
+                        Console.WriteLine("*****************************************************************");
+                    }
+                    //If the user's answer matches with one of the three fruits, provide hint
+                    else
+                    {
+                        Console.WriteLine("You are lucky! That fruit is on the Secret Lucky Fruit List!");
+
+                        //Hint 2: Tell the user if the guessing number is a multiple of 3 or not
+                        if (randomNumber % 3 == 0)
+                        {
+                            Console.WriteLine("**HINT: The number you are guessing IS a multiple of 3**");
+                        }
+                        else
+                        {
+                            Console.WriteLine("**HINT: The number you are guessing IS NOT a multiple of 3**");
+                        }
+                    }
+
+                    //This is needed to give the hint and allow user to guess the number in the same attempt
+                    count--;
+                }
+                else if (myRound2Answers[count].guessNumberTwo < randomNumber)
+                {
+                    Console.WriteLine("The number is HIGHER than your answer. Try again!");
+                }
+                else
+                {
+                    //If the user got the correct guessing number in this attempt, end the loop and move on to the next round
+                    Console.WriteLine("Congratulations! You've got the right number!");
+                    break;
+                }
+            }
+        }
+
+        //RoundFinal Method
+        //Input - guessNumberThree
+        //No outputs, Display message and hint
+        //Validate user input
+        static void RoundFinal(MyAnswers[] myRound1Answers, MyAnswers[] myRound2Answers,
+            MyAnswers[] myFinalRoundAnswers, int randomNumber)
+        {
+            int i;
+            int count;
+
+            //Start Final Round, shows how many chances are given in this round
+            Console.WriteLine("\n--------------------------------<Final Round>--------------------------------\n" +
+                "You have {0} chances to guess the number in Final Round.", ROUND_FINAL_ATTEMPT);
+
+            //Hint information in Final Round
+            Console.WriteLine("\nIf you want to use the hint, enter the number [3]. This is the last hint.");
+            Console.WriteLine("-----------------------------------------------------------------------------");
+
+            //Ask user to guess the number for ROUND_FINAL_ATTEMPT times
+            for (count = 0; count < ROUND_FINAL_ATTEMPT; count++)
+            {
+                //Check to see if user got the number correct in Round 1
+                for (i = 0; i < ROUND_ONE_ATTEMPT; i++)
+                {
+                    //If the user got the correct guessing number in previous Rounds, end the loop and end the game
+                    if (myRound1Answers[i].guessNumberOne == randomNumber)
+                    {
+                        Console.WriteLine("\nBut...Wow! You've got the number in Round 1!\nSee You Again!!");
+                        Console.WriteLine("\nPlease enter the number again to end the game.");
+                        break;
+                    }
+                }
+
+                //Check to see if user got the number correct in Round 2
+                for (i = 0; i < ROUND_TWO_ATTEMPT; i++)
+                {
+                    //If the user got the correct guessing number in previous Rounds, end the loop and end the game
+                    if (myRound2Answers[i].guessNumberTwo == randomNumber)
+                    {
+                        Console.WriteLine("\nBut...Wow! You've got the number in Round 2!\nSee You Again!!");
+                        Console.WriteLine("\nPlease enter the number again to end the game.");
+                        break;
+                    }
+                }
+
+                Console.WriteLine("\nAttempt {0}", count + 1);
+
+                //Validate the number entered based on MIN_NUMBER and MAX_NUMBER
+                do
+                {
+                    //Use try-catch not to make the program break
+                    try
+                    {
+                        myFinalRoundAnswers[count].guessNumberThree = int.Parse(Console.ReadLine());
+
+                        //If the user wants Hint 3, provide the hint for free and break the loop to move on
+                        if (myFinalRoundAnswers[count].guessNumberThree == 3)
+                        {
+                            Console.WriteLine("In the Final Round, the Hint is for free!");
+                            break;
+                        }
+                    }
+                    catch
+                    {
+                        myFinalRoundAnswers[count].guessNumberThree = 0;
+                    }
+
+                    if (myFinalRoundAnswers[count].guessNumberThree < MIN_NUMBER || 
+                        myFinalRoundAnswers[count].guessNumberThree > MAX_NUMBER)
+                    {
+                        Console.WriteLine("Invalid response, please enter a number between {0} and {1}:", MIN_NUMBER, MAX_NUMBER);
+                    }
+                } while (myFinalRoundAnswers[count].guessNumberThree < MIN_NUMBER || 
+                         myFinalRoundAnswers[count].guessNumberThree > MAX_NUMBER);
+
+                //Show whether the guessing number is high or low compared to the user input only in Attempt 1
+                if (myFinalRoundAnswers[count].guessNumberThree > randomNumber && count != 1)
+                {
+                    Console.WriteLine("The number is LOWER than your answer. Try again!");
+                }
+                else if (myFinalRoundAnswers[count].guessNumberThree == 3)
+                {
+                    //Hint 3: Tell the user if the guessing number is a multiple of 5 or not
+                    if (randomNumber % 5 == 0)
+                    {
+                        Console.WriteLine("**HINT: The number you are guessing IS a multiple of 5**");
+                    }
+                    else
+                    {
+                        Console.WriteLine("**HINT: The number you are guessing IS NOT a multiple of 5**");
+                    }
+
+                    //This is needed to give the hint and allow user to guess the number in the same attempt
+                    count--;
+                }
+                else if (myFinalRoundAnswers[count].guessNumberThree < randomNumber && count != 1)
+                {
+                    Console.WriteLine("The number is HIGHER than your answer. Try again!");
+                }
+                else
+                {
+                    //If the user doesn't get the right number until the last attempt,
+                    //Tell what the guessing number was, and end the game
+                    if (myFinalRoundAnswers[count].guessNumberThree != randomNumber && count == 1)
+                    {
+                        Console.WriteLine("\n*****************************************************************************");
+                        Console.WriteLine("\nThat was close, but you lost the game... The number was {0}", randomNumber);
+                    }
+                    else
+                    {
+                        //If the user got the correct guessing number print congrats message and end the loop and game
+                        Console.WriteLine("Congratulations! You've got the right number! This is the end of the game.");
+                        break;
+                    }
+                    Console.WriteLine("See You Again!!");
+                }
+            }
+        }
+
+        //MyOverallAnswers Method
+        //Outputs only, Display history of guessed numbers to console
+        static void MyOverallAnswers(MyAnswers[] myRound1Answers, MyAnswers[] myRound2Answers, MyAnswers[] myFinalRoundAnswers)
+        {
+            int count;
+
+            Console.WriteLine("\n*****************************************************************************");
+            Console.WriteLine("\nHere's your way to the answer!! Check how you got close!");
+
+            //Guessed numbers history in Round 1
+            Console.WriteLine("\n----------<Round 1>----------");
+            for (count = 0; count < ROUND_ONE_ATTEMPT; count++)
+            {
+                Console.WriteLine("\nAttempt {0}: {1}", count + 1, myRound1Answers[count].guessNumberOne);
+            }
+
+            //Guessed numbers history in Round 2
+            Console.WriteLine("\n----------<Round 2>----------");
+            for (count = 0; count < ROUND_TWO_ATTEMPT; count++)
+            {
+                Console.WriteLine("\nAttempt {0}: {1}", count + 1, myRound2Answers[count].guessNumberTwo);
+            }
+
+            //Guessed numbers history in Final Round
+            Console.WriteLine("\n--------<Final Round>--------");
+            for (count = 0; count < ROUND_FINAL_ATTEMPT; count++)
+            {
+                Console.WriteLine("\nAttempt {0}: {1}", count + 1, myFinalRoundAnswers[count].guessNumberThree);
+            }
+        }
+        static void Main(string[] args)
+        {
+            //Guessed numbers history in each rounds to be stored in each array of structures
+            MyAnswers[] myRound1Answers = new MyAnswers[ROUND_ONE_ATTEMPT];
+            MyAnswers[] myRound2Answers = new MyAnswers[ROUND_TWO_ATTEMPT];
+            MyAnswers[] myFinalRoundAnswers = new MyAnswers[ROUND_FINAL_ATTEMPT];
+
+            //Array of questions
+            string[] question = new string[]
+            {
+                "Choose a color to get a hint",
+                "Choose a fruit to get a hint",
+            };
+
+            //Array of answers1
+            string[] answers1 = new string[]
+            {
+                "RED", "BLUE", "GREEN"
+            };
+
+            //Array of answers2
+            string[] answers2 = new string[]
+            {
+                "STRAWBERRY", "GRAPEFRUIT", "APPLE"
+            };
+
+            //Call methods
+            Welcome();
+
+            int randomNumber = CreateNumber();
+
+            RoundOne(myRound1Answers, randomNumber);
+
+            RoundTwo(myRound1Answers, myRound2Answers, randomNumber, question, answers1, answers2);
+
+            RoundFinal(myRound1Answers, myRound2Answers, myFinalRoundAnswers, randomNumber);
+
+            MyOverallAnswers(myRound1Answers, myRound2Answers, myFinalRoundAnswers);
+        }
+    }
+}
+
