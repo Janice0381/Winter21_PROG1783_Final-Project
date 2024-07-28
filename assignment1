@@ -1,0 +1,257 @@
+using System;
+/* Program to ask the user items they want to buy and print the payment including the discounts and tax
+ * Minji Kim
+ * Date: Mar 1 2021
+ */
+
+namespace Assignment1
+{
+    class Program
+    {
+        static void Main(string[] args)
+        {
+            //Define fixed variables including the cost and discount, tax percentages
+            const double EARRINGS_COST = 67.00F, NECKLACE_COST = 90.00F;
+            const double STUDENT_SENIOR_DISCOUNT = 0.93F, QUANTITY_DISCOUNT = 0.70F;
+            const double TAX_PERCENTAGE = 0.13F;
+            const int MIN_NUMBER = 0, MAX_NUMBER = 20;
+            const int QUANTITY_DISCOUNT_NUMBER = 5;
+            const int STUDENT_SENIOR_DISCOUNT_PERCENTAGE = 7, QUANTITY_DISCOUNT_PERCENTAGE = 30, NO_DISCOUNT = 0;
+
+            //Define variables needed
+            string itemEarrings, itemNecklace, colorEarrings, colorNecklace, 
+                shapeEarrings, shapeNecklace;
+            int quantityEarrings, quantityNecklace, discountEarrings, discountNecklace;
+            string identity;
+            bool validChoiceChk;
+            double totalEarrings, totalNecklace, totalSavings, subTotal, tax, finalTotal;
+            
+            //Welcome Message and Price Information
+            Console.WriteLine("Welcome to Janice's Jewelry! We have earrings and necklaces.\n" +
+                "There are 3 colors in each item: Gold, Pink gold, Silver\n" +
+                "There are 2 shapes in each item: Heart, Crown");
+            Console.WriteLine("Earrings: ${0:##.00} Necklace: ${1:##.00} (per 1)\n\n", EARRINGS_COST, NECKLACE_COST);
+
+
+            //Ask number of earrings the user wants
+            //Loop while more than MAX_NUMBER
+            do
+            {
+                Console.WriteLine("Do you want earrings? If you buy {0} or more you get {1}% discount.\nHow many?: ", 
+                    QUANTITY_DISCOUNT_NUMBER, QUANTITY_DISCOUNT_PERCENTAGE);
+                quantityEarrings = int.Parse(Console.ReadLine());
+                itemEarrings = "Earrings";
+
+                if (quantityEarrings > MAX_NUMBER)
+                {
+                    Console.WriteLine("Invalid number, you may only buy up to " + 
+                        MAX_NUMBER + " items due to production issue.");
+                }
+            } while (quantityEarrings > MAX_NUMBER);
+            
+
+            //If the user wants earrings, ask for shape and color
+            if (quantityEarrings > MIN_NUMBER)
+            {                                          
+                //Asking for proper shape choice loop
+                do
+                {
+                    Console.WriteLine("Which shape do you want [Heart/Crown]: ");
+                    shapeEarrings = Console.ReadLine();
+
+                    //Set boolean to true if a valid choice was entered
+                    validChoiceChk = (shapeEarrings.ToUpper() == "HEART" || shapeEarrings.ToUpper() == "CROWN");
+                    if (!validChoiceChk)
+                    {
+                        Console.WriteLine("Invalid choice, please choose between Heart or Crown.");
+                    }
+                } while (!validChoiceChk);
+
+                //Asking for proper color choice loop
+                do
+                {
+                    Console.WriteLine("Which color do you want [Gold/Pink gold/Silver]: ");
+                    colorEarrings = Console.ReadLine();
+
+                    //Set boolean to true if a valid choice was entered
+                    validChoiceChk = (colorEarrings.ToUpper() == "GOLD" ||
+                        colorEarrings.ToUpper() == "PINK GOLD" || colorEarrings.ToUpper() == "SILVER");
+
+                    if (!validChoiceChk)
+                    {
+                        Console.WriteLine("Invalid choice, please choose between Gold, Pink gold, or Silver.");
+                    }
+                } while (!validChoiceChk);
+            }
+
+            //If the user doesn't want any, leave the variables empty with a space (Not to make an error)
+            else
+            {
+                colorEarrings = " ";
+                shapeEarrings = " ";
+            }
+
+
+            //Ask number of necklaces the user wants
+            //Loop while more than MAX_NUMBER
+            do
+            {
+                Console.WriteLine("\nDo you want necklace? If you buy {0} or more you get {1}% discount.\nHow many?: ",
+                    QUANTITY_DISCOUNT_NUMBER, QUANTITY_DISCOUNT_PERCENTAGE);
+                quantityNecklace = int.Parse(Console.ReadLine());
+                itemNecklace = "Necklace";
+
+                if (quantityNecklace > MAX_NUMBER)
+                {
+                    Console.WriteLine("Invalid number, you may only buy up to " +
+                        MAX_NUMBER + " items due to production issue.");
+                }
+            } while (quantityNecklace > MAX_NUMBER);
+            
+
+            //If the user wants necklaces, ask for shape and color
+            if (quantityNecklace > MIN_NUMBER)
+            {              
+                //Asking for proper shape choice loop
+                do
+                {
+                    Console.WriteLine("Which shape do you want [Heart/Crown]: ");
+                    shapeNecklace = Console.ReadLine();
+
+                    //Set boolean to true if a valid choice was entered
+                    validChoiceChk = (shapeNecklace.ToUpper() == "HEART" || shapeNecklace.ToUpper() == "CROWN");
+                    if (!validChoiceChk)
+                    {
+                        Console.WriteLine("Invalid choice, please choose between Heart or Crown.");
+                    }
+                } while (!validChoiceChk);
+
+                //Asking for proper color choice loop
+                do
+                {
+                    Console.WriteLine("Which color do you want [Gold/Pink gold/Silver]: ");
+                    colorNecklace = Console.ReadLine();
+
+                    //Set boolean to true if a valid choice was entered
+                    validChoiceChk = (colorNecklace.ToUpper() == "GOLD" ||
+                        colorNecklace.ToUpper() == "PINK GOLD" || colorNecklace.ToUpper() == "SILVER");
+
+                    if (!validChoiceChk)
+                    {
+                        Console.WriteLine("Invalid choice, please choose between Gold, Pink gold, or Silver.");
+                    }
+                } while (!validChoiceChk);
+            }
+
+            //If the user doesn't want any, leave the variables empty with a space (Not to make an error)
+            else
+            {
+                colorNecklace = " ";
+                shapeNecklace = " ";
+            }
+
+
+            //Ask the identity of the user
+            do
+            {
+                Console.WriteLine("\nAre you a student, senior, or neither?");
+                identity = Console.ReadLine();
+
+                //Set boolean to true if a valid choice was entered
+                validChoiceChk = (identity.ToUpper() == "STUDENT" ||
+                    identity.ToUpper() == "SENIOR" || identity.ToUpper() == "NEITHER");
+                if (!validChoiceChk)
+                {
+                    Console.WriteLine("Invalid choice, please choose between student, senior, or neither.");
+                }
+
+                //Give student/senior discount information
+                if(identity == "student" || identity == "senior")
+                {
+                    Console.WriteLine("\nYou get {0}% discount! " +
+                        "(If you got {1}% quantity discount, this doesn't apply to that item.)",
+                        STUDENT_SENIOR_DISCOUNT_PERCENTAGE, QUANTITY_DISCOUNT_PERCENTAGE);
+                }
+            } while (!validChoiceChk);
+
+
+            //Apply quantity discount of earrings first if the user buys 5 or more
+            if (quantityEarrings >= QUANTITY_DISCOUNT_NUMBER)
+            {
+                totalEarrings = EARRINGS_COST * quantityEarrings * QUANTITY_DISCOUNT;
+                discountEarrings = QUANTITY_DISCOUNT_PERCENTAGE;
+            }
+            //Apply student/senior discount of earrings if the user is one of them
+            else if(identity == "student" || identity == "senior")
+            {
+                totalEarrings = EARRINGS_COST * quantityEarrings * STUDENT_SENIOR_DISCOUNT;
+                discountEarrings = STUDENT_SENIOR_DISCOUNT_PERCENTAGE;
+            }
+            //No discount applied if neither of the conditions above are satisfied
+            else
+            {
+                totalEarrings = EARRINGS_COST * quantityEarrings;
+                discountEarrings = NO_DISCOUNT;
+            }
+
+            //Apply quantity discount of necklaces first if the user buys 5 or more
+            if (quantityNecklace >= QUANTITY_DISCOUNT_NUMBER)
+            {
+                totalNecklace = NECKLACE_COST * quantityNecklace * QUANTITY_DISCOUNT;
+                discountNecklace = QUANTITY_DISCOUNT_PERCENTAGE;
+            }
+            //Apply student/senior discount of necklaces if the user is one of them
+            else if (identity == "student" || identity == "senior")
+            {
+                totalNecklace = NECKLACE_COST * quantityNecklace * STUDENT_SENIOR_DISCOUNT;
+                discountNecklace = STUDENT_SENIOR_DISCOUNT_PERCENTAGE;
+            }
+            //No discount applied if neither of the conditions above are satisfied
+            else
+            {
+                totalNecklace = NECKLACE_COST * quantityNecklace;
+                discountNecklace = NO_DISCOUNT;
+            }
+
+
+            //Calculate the total savings
+            totalSavings = (EARRINGS_COST * quantityEarrings - totalEarrings) 
+                + (NECKLACE_COST * quantityNecklace - totalNecklace);
+
+            //Calculate the sub total
+            subTotal = totalEarrings + totalNecklace;
+
+            //Calculate the tax
+            tax = subTotal * TAX_PERCENTAGE;
+
+            //Calculate the final total
+            finalTotal = subTotal + tax;
+
+
+            //Create output for a summary menu
+            Console.WriteLine("\nItem Type\tDetails\t\t\tCost Per\tQnty\tDiscount\tTotal");
+            Console.WriteLine("---------\t-------\t\t\t--------\t----\t--------\t-----");
+            if (quantityEarrings > 0)
+            {
+                Console.WriteLine("{0}\t{1}, {2,-19}{3,1}{4:##.00}{5,12}{6,11}%{7,7}{8,6:##.00}\n", 
+                    itemEarrings, shapeEarrings, colorEarrings, "$", EARRINGS_COST, 
+                    quantityEarrings, discountEarrings, "$", totalEarrings);
+            }
+            if (quantityNecklace > 0)
+            {
+                Console.WriteLine("{0}\t{1}, {2,-19}{3,1}{4:##.00}{5,12}{6,11}%{7,6}{8,7:##.00}\n", 
+                    itemNecklace, shapeNecklace, colorNecklace, "$", NECKLACE_COST, 
+                    quantityNecklace, discountNecklace, "$", totalNecklace);
+            }
+
+            if (discountEarrings != NO_DISCOUNT || discountNecklace != NO_DISCOUNT)
+            {
+                Console.WriteLine("{0,75}{1,4}{2,6:##.00}\n", "Total Savings:", "$", totalSavings);
+            }
+            
+            Console.WriteLine("{0,75}{1,3}{2,7:##.00}", "Sub Total:", "$", subTotal);
+            Console.WriteLine("{0,75}{1,4}{2,6:##.00}", "Tax:", "$", tax);
+            Console.WriteLine("{0,75}{1,3}{2,7:##.00}", "Total:", "$", finalTotal);
+        }
+    }
+}
